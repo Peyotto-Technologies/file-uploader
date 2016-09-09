@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
-app.use('/', require('./routes/v1'))
+app.use('/api/v1/', require('./routes/v1'))
 
 console.log(' * * * STARTING * * * \n\n')
 

@@ -1,0 +1,66 @@
+
+base address: /api/v1/
+response
+{status: 'ok'}
+{status: 'error', message: 'what the hell has happened!'}
+
+
+create folder
+POST /folders
+{folderName, parentId}
+response {folderId}
+
+
+file upload (generate thumbnail if possible)
+POST /files
+{file: .., folderId}
+response {fileId}
+
+
+list folder contents
+GET /folder/:folderId
+reponse {items: [
+  id: file or folder id,
+  type: [file|folder],
+  name: bla,
+  filepath: ,
+  thumbnailPath:
+]}
+
+
+delete uploaded file
+DELETE /files/:fileId
+
+delete folder
+DELETE /foldes/:folderId
+
+update folder
+PUT /foldes/:folderId
+{name}
+
+rename file
+PUT /files/:fileId
+{name}
+response {}
+
+
+order files by - upload date, name
+GET /files
+?(order=[asc,desc], orderby=[uploadDate,name])
+
+
+_____________________________________
+list of all dogs
+GET /dogs?page=1,2,3, orderby=[name,age], order=[asc,desc]
+
+ADD new dog
+POST /dog
+
+particular dog
+GET /dog/:dogId
+
+update dog info
+PUT /dog/:dogId
+
+remove a dog
+DELETE /dogs/:dogId
