@@ -14,7 +14,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false
         },
         folder_id:{
-            type: INTEGER,
+            type: DataTypes.INTEGER,
             allowNull: true,
             defaultValue: 0
         },
@@ -23,7 +23,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false
         },
         user_id: {
-            type: INTEGER,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         thumbnail_path: {

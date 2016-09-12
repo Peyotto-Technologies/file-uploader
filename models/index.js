@@ -26,6 +26,5 @@ Object.keys(db).forEach(function(modelName) {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-db.redis = redis;
 
 module.exports = db;

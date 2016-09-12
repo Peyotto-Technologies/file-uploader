@@ -14,12 +14,12 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false
         },
         parent_id:{
-            type: INTEGER,
+            type: DataTypes.INTEGER,
             allowNull: true,
             defaultValue: 0
         },
         user_id: {
-            type: INTEGER,
+            type: DataTypes.INTEGER,
             allowNull: false
         }
     }, {

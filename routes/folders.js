@@ -1,36 +1,43 @@
 var express = require('express')
 var router = express.Router()
- var models = require('../models')
+var models = require('../models')
+var Promise = require('bluebird')
+var Folders = require('../lib/folders')
+var env = process.env.NODE_ENV || 'development'
+var config = require(__dirname + '/../config/config.json')[env]
+var user = {id: 10}
 
-/* GET users listing. */
-router.post('/', function (req, res, next) {
+/* create new folder. */
+router.get('/', function (req, res, next) {
+  if (!user) {
+    return res.json({status: 'error', message: '403 error'})
+  }
 
-  /*** api call here ***/
+  var parentId = parseInt(req.query.parentId, 10) || 0
+  var folderName = req.query.folderName || ''
+  if (folderName === '') {
+    return res.json({status: 'error', message: 'folderName name is missing.'})
+  }
+  folderName = folderName.replace(/[|&;$%#@*"<>()+,^! ]/g, '_')
 
-  var folderId = 0,
-      status;
-  models.Folders
-    .build({
+  return Folders.getParentFolderPath(parentId, user.id).then(pPath => {
+    return Folders.makeDir(pPath + '/' + folderName)
+  }).then(path => {
+    return models.Folders.create({
       name: folderName,
-      user_id: user.id,
-      path: new Date()
+      path: path,
+      parent_id: parentId,
+      user_id: user.id
     })
-    .save()
-    .then(function(data) {
-      folderId = data.id;
-      status = 'ok';
-    }).catch(function(error) {
-      status = 'error';
+  }).then(newFolder => {
+    return res.json({status: 'ok', id: newFolder.id})
+  }).catch(err => {
+    console.log(err.stack)
+    return res.json({status: 'error', message: err.message})
   })
-
-  res.json({
-    status: status,
-    folderId: folderId
-  })
-
 })
 
-/* GET SINGLE user info. */
+/* GET SINGLE folder info. */
 router.get('/:folderId', function (req, res, next) {
   var folderId = parseInt(req.params.folderId, 10) || 0
 
