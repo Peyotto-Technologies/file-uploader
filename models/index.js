@@ -5,7 +5,7 @@ var path      = require("path");
 var Sequelize = require("sequelize");
 var env       = process.env.NODE_ENV || "development";
 var config    = require(__dirname + '/../config/config.json')[env];
-var sequelize = new Sequelize(config.mysqlConnectionString, { logging: false});
+var sequelize = new Sequelize(config.pgConnectionString, { logging: false});
 var db        = {};
 
 fs

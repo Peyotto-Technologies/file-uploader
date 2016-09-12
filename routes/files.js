@@ -9,4 +9,16 @@ router.get('/', function (req, res, next) {
   })
 })
 
+router.delete('/:fileId', function (req, res, next) {
+  res.send({
+    status: 'ok'
+  })
+})
+
+router.put('/:fileId', function (req, res, next) {
+  res.send({
+    status: 'ok'
+  })
+})
+
 module.exports = router

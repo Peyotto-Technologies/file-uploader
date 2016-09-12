@@ -1,16 +1,12 @@
 {
 	"development": {
-		"mysql": {
-			"mysqlConnectionString": "mysql://USER_NAME:PASS_WORD@localhost:3306/DB_NAME",
-			"host": "localhost",
-			"user": "",
-			"password": "",
-			"port": "",
-			"database": ""
-		}
+		"pgConnectionString": "postgres://user:******@localhost/DBname",
+		"username": "",
+		"password": ""
+
 	},
 
 	"production": {
-		
+
 	}
 }
