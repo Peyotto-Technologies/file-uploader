@@ -8,13 +8,13 @@ var config = require(__dirname + '/../config/config.json')[env]
 var user = {id: 10}
 
 /* create new folder. */
-router.get('/', function (req, res, next) {
+router.post('/', function (req, res, next) {
   if (!user) {
     return res.json({status: 'error', message: '403 error'})
   }
 
-  var parentId = parseInt(req.query.parentId, 10) || 0
-  var folderName = req.query.folderName || ''
+  var parentId = parseInt(req.body.parentId, 10) || 0
+  var folderName = req.body.folderName || ''
   if (folderName === '') {
     return res.json({status: 'error', message: 'folderName name is missing.'})
   }
@@ -32,7 +32,6 @@ router.get('/', function (req, res, next) {
   }).then(newFolder => {
     return res.json({status: 'ok', id: newFolder.id})
   }).catch(err => {
-    console.log(err.stack)
     return res.json({status: 'error', message: err.message})
   })
 })
@@ -41,39 +40,55 @@ router.get('/', function (req, res, next) {
 router.get('/:folderId', function (req, res, next) {
   var folderId = parseInt(req.params.folderId, 10) || 0
 
-  if (folderId !== 0) {
-
-    /* models.Users.findOne({id: user_id}).then(function (user) {
-     res.json(user)
-     })*/
-
-    res.json({
-      status: 'ok',
-      items: [ {
-        id: 1,
-        type: '',
-        name: 'bla',
-        filepath: '',
-        thumbnailPath: ''
-      } ]
+  return models.Folders.findOne({
+    where: {id: folderId, user_id: user.id}
+  }).then(folderInfo => {
+    return models.Files.findAll({
+      include: [{
+        model: models.Folders,
+        where: { folder_id: folderInfo.id, user_id: user.id } // TODO sequelize associate
+      }]
     })
-  } else {
-    res.json({
-      status: 'error',
-      message: 'Invalid folder id.'
-    })
-  }
+  }).then(fileItems => {
+    console.log('aaaaaaaaa - ', fileItems)
+    return res.json({status: 'ok', folderInfo: fileItems})
+  }).catch(err => {
+    console.log(err.stack)
+    return res.json({status: 'error', message: err.message})
+  })
 })
 
 router.delete('/:folderId', function (req, res, next) {
-  res.send({
-    status: 'ok'
+  var folderId = parseInt(req.params.folderId, 10) || 0
+
+  return Folders.deleteDir(folderId, user.id).then(id => {
+    return models.Folders.destroy({ where: {id: id, user_id: user.id} })
+  }).then(() => {
+    return res.json({status: 'ok'})
+  }).catch(err => {
+    return res.json({status: 'error', message: err.message})
   })
 })
 
 router.put('/:folderId', function (req, res, next) {
-  res.send({
-    status: 'ok'
+  var folderId = parseInt(req.params.folderId, 10) || 0
+  var folderName = req.body.folderName || ''
+
+  if (folderName === '') {
+    return res.json({status: 'error', message: 'folderName name is missing.'})
+  }
+
+  folderName = folderName.replace(/[|&;$%#@*"<>()+,^! ]/g, '_')
+
+  return Folders.renameDir(folderId, folderName, user.id).then(newPath => {
+    models.Folders.update(
+      {name: folderName, path: newPath},
+      {where: {id: folderId, user_id: user.id}
+    })
+  }).then(updatedFolder => {
+    return res.json({status: 'ok', name: updatedFolder.name})
+  }).catch(err => {
+    return res.json({status: 'error', message: err.message})
   })
 })
 
