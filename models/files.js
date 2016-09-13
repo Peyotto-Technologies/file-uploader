@@ -33,12 +33,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     tableName: 'files',
     timestamps: true,
-    getterMethods: {},
-    classMethods: {
-      associate: function (models) {
-        Files.hasOne(models.Folders, {foreignKey: 'id', otherKey: 'folder_id'})
-      }
-    }
+    getterMethods: {}
   })
 
   return Files

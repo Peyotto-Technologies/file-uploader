@@ -44,10 +44,7 @@ router.get('/:folderId', function (req, res, next) {
     where: {id: folderId, user_id: user.id}
   }).then(folderInfo => {
     return models.Files.findAll({
-      include: [{
-        model: models.Folders,
-        where: { folder_id: folderInfo.id, user_id: user.id } // TODO sequelize associate
-      }]
+      where: {folder_id: folderInfo.id, user_id: user.id}
     })
   }).then(fileItems => {
     console.log('aaaaaaaaa - ', fileItems)
@@ -63,6 +60,8 @@ router.delete('/:folderId', function (req, res, next) {
 
   return Folders.deleteDir(folderId, user.id).then(id => {
     return models.Folders.destroy({ where: {id: id, user_id: user.id} })
+  }).then(deletedFolder => {
+    return models.Files.destroy({ where: {folder_id: deletedFolder.id, user_id: user.id} })
   }).then(() => {
     return res.json({status: 'ok'})
   }).catch(err => {
