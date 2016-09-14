@@ -1,68 +1,71 @@
 var express = require('express')
 var router = express.Router()
 var models = require('../models')
-var Promise = require('bluebird')
 var Files = require('../lib/Files')
 var env = process.env.NODE_ENV || 'development'
 var config = require(__dirname + '/../config/config.json')[env]
-var user = {id: 10}
+var multer = require('multer')
+var upload = multer({ dest: './public/img' })
 
 /* GET a single file from the folder */
 router.get('/:fileId', function (req, res, next) {
   var fileId = parseInt(req.params.fileId, 10) || 0
 
   return models.Files.findOne({
-    where: {id: fileId, user_id: user.id}
+    where: {id: fileId, user_id: req.user.id}
   }).then(fileData => {
     return res.json({status: 'ok', file: fileData})
   }).catch(err => {
-    console.log(err.stack)
-    return res.json({status: 'error', message: err.message})
+    next(err)
   })
 })
 
 /* create new file. */
-router.post('/:folderId', function (req, res, next) {
-  if (!user) {
+router.post('/:folderId', upload.single('uploadFile'), function (req, res, next) {
+  if (!req.user) {
     return res.json({status: 'error', message: '403 error'})
   }
 
   var folderId = parseInt(req.params.folderId, 10) || 0
-  var fileName = req.body.fileName || ''
-  if (fileName === '') {
+  var tempFiles = req.file
+  console.log('tempFiles-------', tempFiles)
+  if (!tempFiles) {
     return res.json({status: 'error', message: 'file name name is missing.'})
   }
-  fileName = fileName.replace(/[|&;$%#@*"<>()+,^! ]/g, '_')
 
   return models.Folders.findOne({
-    where: {id: folderId, user_id: user.id}
+    where: {id: folderId, user_id: req.user.id}
   }).then(pfolder => {
-    return Files.createFile(fileName, pfolder.path) // TODO creatFile should be written in files lib
+    return Files.createFileDeleteTmp(tempFiles, pfolder.path)
   }).then((fileInfo) => {
     return models.Files.create({
-      name: fileName,
-      path: fileInfo.filePath,
+      file_name: fileInfo.originalname,
+      file_path: fileInfo.finalPath,
       folder_id: folderId,
       mimetype: fileInfo.mimetype,
       thumbnail_path: fileInfo.thumbnail_path,
-      user_id: user.id
+      user_id: req.user.id
     })
   }).then(newFile => {
     return res.json({status: 'ok', id: newFile.id})
   }).catch(err => {
-    return res.json({status: 'error', message: err.message})
+    next(err)
   })
 })
 
 router.delete('/:fileId', function (req, res, next) {
   var fileId = parseInt(req.params.fileId, 10) || 0
 
-  return Files.deleteFile(fileId).then(() => { // TODO create deleteFile function in files lib
-    return models.Files.destroy({ where: {id: fileId, user_id: user.id} })
-  }).then(() => {
-    return res.json({status: 'ok'})
-  }).catch(err => {
-    return res.json({status: 'error', message: err.message})
+  return models.Files.findOne({
+    where: {id: fileId, user_id: req.user.id}
+  }).then(fileInfo => {
+    return Files.deleteFile(fileInfo.file_path).then(() => {
+      return models.Files.destroy({ where: {id: fileId, user_id: req.user.id} })
+    }).then(() => {
+      return res.json({status: 'ok'})
+    }).catch(err => {
+      next(err)
+    })
   })
 })
 
@@ -74,12 +77,27 @@ router.put('/:fileId', function (req, res, next) {
   }
   fileName = fileName.replace(/[|&;$%#@*"<>()+,^! ]/g, '_')
 
-  return Files.renameFile(fileId, fileName).then(() => { // TODO create renameFile function in files lib
-    return models.Files.update({ where: {id: fileId, user_id: user.id} })
-  }).then(() => {
-    return res.json({status: 'ok'})
+  return models.Files.findOne({
+    where: {id: fileId, user_id: req.user.id}
+  }).then(fileInfo => {
+    return Files.renameFile(fileInfo, fileName).then(newPath => {
+      return models.Files.update(
+        {file_name: fileName, file_path: newPath},
+        {where: {id: fileId, user_id: req.user.id}})
+    }).then(() => {
+      return res.json({status: 'ok'})
+    }).catch(err => {
+      next(err)
+    })
+  })
+})
+
+// ordering by ...
+router.get('/:fileId/:order/:orderby', function (req, res, next) {
+  return models.Files.findAll({ limit: 10, order: '"' + req.params.orderby + '" ' + req.params.order }).then(files => {
+    return res.json({status: 'ok', files})
   }).catch(err => {
-    return res.json({status: 'error', message: err.message})
+    next(err)
   })
 })
 

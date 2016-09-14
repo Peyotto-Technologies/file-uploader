@@ -18,7 +18,7 @@ router.post('/', function (req, res, next) {
   }
   folderName = folderName.replace(/[|&;$%#@*"<>()+,^! ]/g, '_')
 
-  return Folders.getParentFolderPath(parentId, req.user.id).then(pPath => {
+  return Folders.getParentFolderPathCreateRoot(parentId, req.user.id).then(pPath => {
     return Folders.makeDir(pPath + '/' + folderName)
   }).then(path => {
     return models.Folders.create({
@@ -55,14 +55,18 @@ router.get('/:folderId', function (req, res, next) {
 router.delete('/:folderId', function (req, res, next) {
   var folderId = parseInt(req.params.folderId, 10) || 0
 
-  return Folders.deleteDir(folderId, req.user.id).then(id => {
-    return models.Folders.destroy({ where: {id: id, user_id: req.user.id} })
-  }).then(deletedFolder => {
-    return models.Files.destroy({ where: {folder_id: deletedFolder.id, user_id: req.user.id} })
-  }).then(() => {
-    return res.json({status: 'ok'})
-  }).catch(err => {
-    next(err)
+  return models.Folders.findOne({
+    where: {id: folderId, user_id: req.user.id}
+  }).then(folderInfo => {
+    return Folders.deleteDir(folderInfo).then(id => {
+      return models.Folders.destroy({ where: {id: id, user_id: req.user.id} })
+    }).then(deletedFolder => {
+      return models.Files.destroy({ where: {folder_id: deletedFolder.id, user_id: req.user.id} })
+    }).then(() => {
+      return res.json({status: 'ok'})
+    }).catch(err => {
+      next(err)
+    })
   })
 })
 
@@ -76,15 +80,19 @@ router.put('/:folderId', function (req, res, next) {
 
   folderName = folderName.replace(/[|&;$%#@*"<>()+,^! ]/g, '_')
 
-  return Folders.renameDir(folderId, folderName, req.user.id).then(newPath => {
-    models.Folders.update(
-      {name: folderName, path: newPath},
-      {where: {id: folderId, user_id: req.protouser.id}
+  return models.Folders.findOne({
+    where: {id: folderId, user_id: req.user.id}
+  }).then(folderInfo => {
+    return Folders.renameDir(folderInfo, folderName).then(newPath => {
+      models.Folders.update(
+        {name: folderName, path: newPath},
+        {where: {id: folderId, user_id: req.protouser.id}
+      })
+    }).then(updatedFolder => {
+      return res.json({status: 'ok', name: updatedFolder.name})
+    }).catch(err => {
+      next(err)
     })
-  }).then(updatedFolder => {
-    return res.json({status: 'ok', name: updatedFolder.name})
-  }).catch(err => {
-    next(err)
   })
 })
 
