@@ -59,6 +59,9 @@ router.delete('/:fileId', function (req, res, next) {
   return models.Files.findOne({
     where: {id: fileId, user_id: req.user.id}
   }).then(fileInfo => {
+    if (!fileInfo) {
+      return Promise.reject(new Error('There is no such file!'))
+    }
     return Files.deleteFile(fileInfo.file_path).then(() => {
       return models.Files.destroy({ where: {id: fileId, user_id: req.user.id} })
     }).then(() => {
@@ -80,6 +83,9 @@ router.put('/:fileId', function (req, res, next) {
   return models.Files.findOne({
     where: {id: fileId, user_id: req.user.id}
   }).then(fileInfo => {
+    if (!fileInfo) {
+      return Promise.reject(new Error('There is no such file!'))
+    }
     return Files.renameFile(fileInfo, fileName).then(newPath => {
       return models.Files.update(
         {file_name: fileName, file_path: newPath},
@@ -94,7 +100,7 @@ router.put('/:fileId', function (req, res, next) {
 
 // ordering by ...
 router.get('/:fileId/:order/:orderby', function (req, res, next) {
-  return models.Files.findAll({ limit: 10, order: '"' + req.params.orderby + '" ' + req.params.order }).then(files => {
+  return models.Files.findAll({ limit: 10, order: '"' + req.params.orderby + '" ' + req.params.order }, {where: {user_id: req.user.id}}).then(files => {
     return res.json({status: 'ok', files})
   }).catch(err => {
     next(err)
