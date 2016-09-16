@@ -4,7 +4,7 @@ var supertest = require('supertest')
 var assert = require('assert')
 
 var app = require(__dirname + '/../app')
-/*
+
 // test for adding a new folder
 describe('Creating folder: ', function () {
   it('should add a new folder with name and parent id', function (done) {
@@ -84,7 +84,7 @@ describe('Delete uploaded file: ', function () {
       })
   })
 })
-*/
+
 // delete uploaded folder
 describe('Delete uploaded folder: ', function () {
   it('delete folder by id', function (done) {
@@ -104,14 +104,16 @@ describe('Delete uploaded folder: ', function () {
       })
   })
 })
-/*
+
 // update folder
 describe('Update folder: ', function () {
   it('should update folder by id', function (done) {
     supertest(app)
-      .put('/api/v1/folders/1')
+      .put('/api/v1/folders/')
       .send({
-        status: 'ok'
+        status: 'ok',
+        folderId: 15,
+        folderName: 'new n000ame'
 
       })
       .end(function (err, res) {
@@ -120,6 +122,7 @@ describe('Update folder: ', function () {
           done(err)
         }
         res.body.should.have.property('status', 'ok')
+        res.body.should.have.property('name')
         done()
       })
   })
@@ -164,4 +167,3 @@ describe('Order files: ', function () {
       })
   })
 })
-*/

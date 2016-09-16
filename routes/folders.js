@@ -45,7 +45,6 @@ router.get('/:folderId', function (req, res, next) {
       where: {folder_id: folderInfo.id, user_id: req.user.id}
     })
   }).then(fileItems => {
-    console.log('aaaaaaaaa - ', fileItems)
     return res.json({status: 'ok', folderInfo: fileItems})
   }).catch(err => {
     next(err)
@@ -70,8 +69,8 @@ router.delete('/:folderId', function (req, res, next) {
   })
 })
 
-router.put('/:folderId', function (req, res, next) {
-  var folderId = parseInt(req.params.folderId, 10) || 0
+router.put('/', function (req, res, next) {
+  var folderId = parseInt(req.body.folderId, 10) || 0
   var folderName = req.body.folderName || ''
 
   if (folderName === '') {
@@ -82,8 +81,8 @@ router.put('/:folderId', function (req, res, next) {
 
   return models.Folders.findOne({
     where: {id: folderId, user_id: req.user.id}
-  }).then(folderInfo => {
-    return Folders.renameDir(folderInfo, folderName).then(newPath => {
+  }).then(data => {
+    return Folders.renameDir(data, folderName).then(newPath => {
       return models.Folders.update(
         {name: folderName, path: newPath},
         {where: {id: folderId, user_id: req.protouser.id}
