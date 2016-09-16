@@ -7,6 +7,11 @@ var config = require(__dirname + '/../config/config.json')[env]
 var multer = require('multer')
 var upload = multer({ dest: './public/img' })
 
+router.get('/', function (req, res, next) {
+  var html = '<form method="post" enctype="multipart/form-data" action="files/3"><input type="file" name="uploadFile"><input type="submit" value="Submit"></form>'
+  res.send(html)
+})
+
 /* GET a single file from the folder */
 router.get('/:fileId', function (req, res, next) {
   var fileId = parseInt(req.params.fileId, 10) || 0
@@ -28,7 +33,6 @@ router.post('/:folderId', upload.single('uploadFile'), function (req, res, next)
 
   var folderId = parseInt(req.params.folderId, 10) || 0
   var tempFiles = req.file
-  console.log('tempFiles-------', tempFiles)
   if (!tempFiles) {
     return res.json({status: 'error', message: 'file name name is missing.'})
   }

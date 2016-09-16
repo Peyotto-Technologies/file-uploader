@@ -1,7 +1,8 @@
 {
 	"development": {
-		"pgConnectionString": "postgres://postgres:123@localhost:5432/filemanager"
-
+		"pgConnectionString": "postgres://postgres:123@localhost:5432/filemanager",
+		"filemanagerUploadPath": "/",
+		"thumbMimeTypes": ["image/jpeg", "image/png", "image/gif"]
 	},
 
 	"production": {

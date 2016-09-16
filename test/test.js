@@ -5,29 +5,14 @@ var assert = require('assert')
 
 var app = require(__dirname + '/../app')
 
-describe('Sample Test: ', function () {
-  it('Shoult do some samle route test', function (done) {
-    supertest(app)
-      .get('/api/v1/files/')
-      .send({status: 'ok'})
-      .end(function (err, res) {
-        if (err) {
-          res.body.should.have.property('message')
-          done(err)
-        }
-        res.body.should.have.property('status', 'ok')
-        done()
-      })
-  })
-})
-
 // test for adding a new folder
 describe('Creating folder: ', function () {
   it('should add a new folder with name and parent id', function (done) {
     supertest(app)
-      .post('/api/v1/folders/')
+      .post('/api/v1/folders')
       .send({
-        status: 'ok'
+        status: 'ok',
+        folderName: 'test'
       })
       .end(function (err, res) {
         if (err) {
@@ -35,11 +20,12 @@ describe('Creating folder: ', function () {
           done(err)
         }
         res.body.should.have.property('status', 'ok')
+        res.body.should.have.property('id')
         done()
       })
   })
 })
-
+/*
 // test for adding a new file
 describe('Add a file: ', function () {
   it('should add a new file with name and parent id', function (done) {
@@ -174,3 +160,4 @@ describe('Order files: ', function () {
       })
   })
 })
+*/

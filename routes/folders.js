@@ -6,13 +6,13 @@ var env = process.env.NODE_ENV || 'development'
 var config = require(__dirname + '/../config/config.json')[env]
 
 /* create new folder. */
-router.post('/', function (req, res, next) {
+router.get('/', function (req, res, next) {
   if (!req.user) {
     return res.json({status: 'error', message: '403 error'})
   }
 
-  var parentId = parseInt(req.body.parentId, 10) || 0
-  var folderName = req.body.folderName || ''
+  var parentId = parseInt(req.query.parentId, 10) || 0
+  var folderName = req.query.folderName || ''
   if (folderName === '') {
     return res.json({status: 'error', message: 'folderName name is missing.'})
   }
@@ -34,7 +34,7 @@ router.post('/', function (req, res, next) {
   })
 })
 
-/* GET SINGLE folder info. */
+/* GET SINGLE folder info. *//*
 router.get('/:folderId', function (req, res, next) {
   var folderId = parseInt(req.params.folderId, 10) || 0
 
@@ -51,7 +51,7 @@ router.get('/:folderId', function (req, res, next) {
     next(err)
   })
 })
-
+*/
 router.delete('/:folderId', function (req, res, next) {
   var folderId = parseInt(req.params.folderId, 10) || 0
 
@@ -84,7 +84,7 @@ router.put('/:folderId', function (req, res, next) {
     where: {id: folderId, user_id: req.user.id}
   }).then(folderInfo => {
     return Folders.renameDir(folderInfo, folderName).then(newPath => {
-      models.Folders.update(
+      return models.Folders.update(
         {name: folderName, path: newPath},
         {where: {id: folderId, user_id: req.protouser.id}
       })
