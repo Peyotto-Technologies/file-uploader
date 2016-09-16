@@ -6,13 +6,13 @@ var env = process.env.NODE_ENV || 'development'
 var config = require(__dirname + '/../config/config.json')[env]
 
 /* create new folder. */
-router.get('/', function (req, res, next) {
+router.post('/', function (req, res, next) {
   if (!req.user) {
     return res.json({status: 'error', message: '403 error'})
   }
 
-  var parentId = parseInt(req.query.parentId, 10) || 0
-  var folderName = req.query.folderName || ''
+  var parentId = parseInt(req.body.parentId, 10) || 0
+  var folderName = req.body.folderName || ''
   if (folderName === '') {
     return res.json({status: 'error', message: 'folderName name is missing.'})
   }
@@ -34,7 +34,7 @@ router.get('/', function (req, res, next) {
   })
 })
 
-/* GET SINGLE folder info. *//*
+/* GET SINGLE folder info. */
 router.get('/:folderId', function (req, res, next) {
   var folderId = parseInt(req.params.folderId, 10) || 0
 
@@ -51,7 +51,7 @@ router.get('/:folderId', function (req, res, next) {
     next(err)
   })
 })
-*/
+
 router.delete('/:folderId', function (req, res, next) {
   var folderId = parseInt(req.params.folderId, 10) || 0
 

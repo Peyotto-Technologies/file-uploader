@@ -34,7 +34,7 @@ router.post('/:folderId', upload.single('uploadFile'), function (req, res, next)
   var folderId = parseInt(req.params.folderId, 10) || 0
   var tempFiles = req.file
   if (!tempFiles) {
-    return res.json({status: 'error', message: 'file name name is missing.'})
+    return res.json({status: 'error', message: 'file is missing.'})
   }
 
   return models.Folders.findOne({

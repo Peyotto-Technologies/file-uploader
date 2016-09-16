@@ -4,7 +4,7 @@ var supertest = require('supertest')
 var assert = require('assert')
 
 var app = require(__dirname + '/../app')
-
+/*
 // test for adding a new folder
 describe('Creating folder: ', function () {
   it('should add a new folder with name and parent id', function (done) {
@@ -25,12 +25,12 @@ describe('Creating folder: ', function () {
       })
   })
 })
-/*
+
 // test for adding a new file
 describe('Add a file: ', function () {
   it('should add a new file with name and parent id', function (done) {
     supertest(app)
-      .post('/api/v1/folders/')
+      .post('/api/v1/files/:folderId')
       .send({
         status: 'ok',
         fileName: 'test',
@@ -42,6 +42,7 @@ describe('Add a file: ', function () {
           done(err)
         }
         res.body.should.have.property('status', 'ok')
+        res.body.should.have.property('id')
         done()
       })
   })
@@ -58,6 +59,7 @@ describe('List folder contents: ', function () {
           done(err)
         }
         res.body.should.have.property('status', 'ok')
+        res.body.should.have.property('folderInfo')
         done()
       })
   })
@@ -69,7 +71,8 @@ describe('Delete uploaded file: ', function () {
     supertest(app)
       .delete('/api/v1/files/:fileId')
       .send({
-        status: 'ok'
+        status: 'ok',
+        fileId: 1
       })
       .end(function (err, res) {
         if (err) {
@@ -81,14 +84,15 @@ describe('Delete uploaded file: ', function () {
       })
   })
 })
-
+*/
 // delete uploaded folder
 describe('Delete uploaded folder: ', function () {
   it('delete folder by id', function (done) {
     supertest(app)
-      .delete('/api/v1/folders/1')
+      .delete('/api/v1/folders/:folderId')
       .send({
-        status: 'ok'
+        status: 'ok',
+        folderId: 15
       })
       .end(function (err, res) {
         if (err) {
@@ -100,7 +104,7 @@ describe('Delete uploaded folder: ', function () {
       })
   })
 })
-
+/*
 // update folder
 describe('Update folder: ', function () {
   it('should update folder by id', function (done) {
