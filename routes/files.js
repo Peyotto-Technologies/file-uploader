@@ -8,7 +8,7 @@ var multer = require('multer')
 var upload = multer({ dest: './public/img' })
 
 router.get('/', function (req, res, next) {
-  var html = '<form method="post" enctype="multipart/form-data" action="files/3"><input type="file" name="uploadFile"><input type="submit" value="Submit"></form>'
+  var html = '<form method="post" enctype="multipart/form-data" action="files/18"><input type="file" name="uploadFile"><input type="submit" value="Submit"></form>'
   res.send(html)
 })
 
@@ -103,7 +103,7 @@ router.put('/:fileId', function (req, res, next) {
 })
 
 // ordering by ...
-router.get('/:fileId/:order/:orderby', function (req, res, next) {
+router.get('/:order/:orderby', function (req, res, next) {
   return models.Files.findAll({ limit: 10, order: '"' + req.params.orderby + '" ' + req.params.order }, {where: {user_id: req.user.id}}).then(files => {
     return res.json({status: 'ok', files})
   }).catch(err => {
